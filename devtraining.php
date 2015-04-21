@@ -136,3 +136,22 @@ function devtraining_civicrm_preProcess($formName, &$form) {
 }
 
 */
+
+function devtraining_civicrm_post( $op, $objectName, $objectId, &$objectRef ){
+	if (($op == 'create' || $op == 'edit') && $objectName == 'Address' && ($objectRef->postal_code != '' && !is_null($objectRef->postal_code))) {
+		$postal_code = $objectRef->postal_code;
+		$county = _devtrainingFetchCountyByPostCode($postal_code);	
+	}
+}
+
+function _devtrainingFetchCountyByPostCode($postal_code) {
+	$zipwise_apikey = 'szhotgjbmzru7q09';
+	$request = 'http://www.zipwise.com/webservices/zipinfo.php?key='.$zipwise_apikey.'&zip='.$postal_code.'&format=json';
+	$jsonzipinfo = CRM_Utils_HttpClient::singleton()->get($request);
+	$zipinfo = json_decode($jsonzipinfo, true);
+	//var_dump($jsonzipinfo);
+	//die;
+	return $zipinfo['county'];
+}
+
+
